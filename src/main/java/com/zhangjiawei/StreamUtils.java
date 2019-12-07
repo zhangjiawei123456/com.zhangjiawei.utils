@@ -11,7 +11,7 @@ import java.io.IOException;
 public class StreamUtils {
 	
 	/**
-	 * 关闭所有的流
+	 * 
 	 * @param n
 	 * @param streams
 	 * @throws IOException

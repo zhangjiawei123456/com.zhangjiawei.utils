@@ -1,186 +1,157 @@
 package com.zhangjiawei;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Random;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 字符串工具类
- * @author zhuzg
+ * 
+ * @author zhangjiawei
  *
  */
 public class StringUtils {
 	
 	/**
-	 * 判断一个字符串是否为空，空字符串也认为是空
+	 *  随机字符串源
+	 */
+	static char charArray[] = new char[36];
+	static {
+		// 构建随机字符串的原始数组
+		for (int i = 0; i < 10; i++) {
+			charArray[i] = (char)('0' + i);
+		}
+		for (int i = 0; i < 26; i++) {
+			charArray[i+10] = (char)('A' + i);
+		}		
+	}
+	
+	
+	
+
+	/**
+	 * 判断一个字符串是否为空，空字符串也认为是的空
 	 * @param str
-	 * @return 为空返回true，否则返回false
+	 * @return 为空返回true  否则返回false
+	 * 
 	 */
 	public static boolean isBlank(String str) {
-		
-		return (str == null|| str.trim().equals(""));
-	}
-	
-	public static String generateChineseName() {
-		return getRandomCn(3);
+		return null==str||"".equals(str.trim());
 	}
 	
 	/**
-	 *  判断一个字符串是否有值
-	 * @param str 非空返回的是true 空或字符串返回false
-	 * @return
+	 * 判断一个字符串时间否有值 
+	 * @param str   
+	 * @return 非空返回true  空字符串或空返回false
 	 */
 	public static boolean haveValue(String str) {
-		
-		return !(str == null|| str.trim().equals(""));
+		return null!=str && !"".equals(str.trim());
 	}
 	
 	/**
-	 * 是否电话
+	 * 判断是否为数字
+	 * @param str
+	 * @return
+	 */
+	public static boolean isNumber(String str) {
+		String regex = "^\\d{1,}$";
+		Pattern compile = Pattern.compile(regex);
+		Matcher matcher = compile.matcher(str);
+		boolean find = matcher.find();
+		return find;
+	}
+	
+	/**
+	 * 
+	 * @param str
 	 * @return
 	 */
 	public static boolean isMobile(String str) {
+		String regex = "^(135|136|138)\\d{8}$";
+		Pattern compile = Pattern.compile(regex);
+		Matcher matcher = compile.matcher(str);
+		boolean find = matcher.find();
+		return find;
 		
-		String regex = "^((13[0-9])|(14[5|7])|(15([0-3]|[5-9]))|(17[013678])|(18[0,5-9]))\\d{8}$";
-		Pattern p =  Pattern.compile(regex);
-		Matcher matcher = p.matcher(str);
-		return matcher.find();
-			
-	}
-	
-	/**
-	 * 是否邮件
-	 * @param str
-	 * @return
-	 */
-	public static boolean isEmail(String str) {
-		
-		String regex="^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$";
-		Pattern p =  Pattern.compile(regex);
-		Matcher matcher = p.matcher(str);
-		return matcher.find();
 		
 	}
 	
-	
-	
 	/**
-	 * 验证是否是URL
-	 * @param url
-	 * @return
-	 */
-	public static boolean isHttpUrl(String str){
-		
-		 //转换为小写
-        str = str.toLowerCase();
-        String regex = "^((https|http|ftp|rtsp|mms)?://)"  //https、http、ftp、rtsp、mms
-                + "?(([0-9a-z_!~*'().&=+$%-]+: )?[0-9a-z_!~*'().&=+$%-]+@)?" //ftp的user@  
-               + "(([0-9]{1,3}\\.){3}[0-9]{1,3}" // IP形式的URL- 例如：199.194.52.184               
-                 + "|" // 允许IP和DOMAIN（域名） 或单域名
-                 + "[0-9a-z]*"  // 或单域名
-                 + "|" // 允许IP和DOMAIN（域名） 或单域名
-                 + "([0-9a-z_!~*'()-]+\\.)*" // 域名- www.  
-                 + "([0-9a-z][0-9a-z-]{0,61})?[0-9a-z]\\." // 二级域名  
-                + "[a-z]{2,6})" // first level domain- .com or .museum  
-                + "(:[0-9]{1,5})?" // 端口号最大为65535,5位数
-                + "((/?)|" // a slash isn't required if there is no file name  
-                + "(/[0-9a-z_!~*'().;?:@&=+$,%#-]+)+/?)$";  
-        return  str.matches(regex);	
-	}
-	
-	/**
-	 * 获取  长度为n的  随机字符串
-	 * 大写字母   
-	 */
-	public static String getRandomStr(int n) {
-		
-		StringBuilder sb = new StringBuilder();
-		Random random = new Random();
-		
-		for (int i = 0; i < n; i++) {
-			char c = (char)('A' +  random.nextInt(26));
-			sb.append(c);
-		}
-		return sb.toString();
-	}
-	
-	/**
-	 * 获取随机字符串  仅仅包含字符串
+	 * 
 	 * @param n
 	 * @return
 	 */
-public static String getRandomNumber(int n) {
-		
-		StringBuilder sb = new StringBuilder();
+	public static String getRandomStr(int n) {
 		Random random = new Random();
+		//Math.random();
+		//UUID.randomUUID();
+		//a -z;
 		
+		//  StringBuilder  线程不安全  但是执行效率高 ，效率高的原因在访问的时候不会加锁
+		//  StringBuffer 线程安全 但是执行效率底下
+		// 这里可以使用StringBuilder  ， 一个函数的执行只能在一个线程内部执行，
+		// 也就是下边这个sb 不会被多个线程同时访问，不会出现线程安全的问题，因而选择效率较高的StringBuilder
+		StringBuilder sb = new StringBuilder();
+		//StringBuffer sb = new StringBuffer();
 		for (int i = 0; i < n; i++) {
-			char c = (char)('0' +  random.nextInt(10));
-			sb.append(c);
+			char randomChar = (char)('a' +  random.nextInt(26));// 0 ~  25;
+			sb.append(randomChar);
 		}
 		return sb.toString();
 	}
 	
 	/**
-	 * 随机字符串  仅仅包含大写字母 和 数字  生成的长度为  n
-	 */
-	public static String getRandomStr2(int n) {
-		
-		StringBuilder sb = new StringBuilder();
-		Random random = new Random();
-		
-		for (int i = 0; i < n; i++) {
-			int r = random.nextInt(36);
-			if(r<26) {
-				char c = (char)('A' +  r );
-				sb.append(c);
-			}else {
-				sb.append(r-26);
-			}
-			
-		}
-		return sb.toString();
-	}
-	
-	/**
-	 * 生成长度为n 的中文字符串
+	 * 获取英文和数字组合的字符串
+	 * @param n
 	 * @return
 	 */
-	public static String getRandomCn(int n ) {
+	public static String getRandomStrNum(int n) {
+		//char charArray[] = {'0','1' ..}
+		Random random = new Random();
+		
+		//获取随机字符串
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < n; i++) {
+			// 获取数组的下标
+			int index =  random.nextInt(36);// 0 ~  25;
+			char randomChar = charArray[index];
+			sb.append(randomChar);
+		}
+		
+		return sb.toString();
+		
+	}
+	
+	/**
+	 * 获取随机字符串 长度2为n
+	 * @param n
+	 * @return 
+	 * @throws UnsupportedEncodingException 
+	 */
+	public static String getGb2312(int n) throws UnsupportedEncodingException {
 		
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < n; i++) {
-			sb.append(getRandomCn());
+			sb.append(getGb2312());
 		}
 		return sb.toString();
 	}
 	
-	
 	/**
-	 * 生成一个随机的中文字符串 
+	 * 随机获取一个中文汉字
 	 * @return
+	 * @throws UnsupportedEncodingException 
 	 */
-	private static char getRandomCn() {
+	private static String getGb2312() throws UnsupportedEncodingException {
 		
-		String str = "";
-        int hightPos; //
-        int lowPos;
-        Random random = new Random();
-
-        hightPos = (176 + Math.abs(random.nextInt(39)));
-        lowPos = (161 + Math.abs(random.nextInt(93)));
-
-        byte[] b = new byte[2];
-        b[0] = (Integer.valueOf(hightPos)).byteValue();
-        b[1] = (Integer.valueOf(lowPos)).byteValue();
-
-        try {
-            str = new String(b, "GBK");
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("出现异常");
-        }
-
-        return str.charAt(0);
+		byte word[] = new byte[2];
+		//  0x1A   0x1A+94
+		Random random = new Random();
+		word[0] = (byte)(0xA1 + 0x10 + random.nextInt(39));
+		word[1] = (byte)(0xA1  + random.nextInt(94));
+		return new String(word,"GBK");
+		
 	}
+
 }

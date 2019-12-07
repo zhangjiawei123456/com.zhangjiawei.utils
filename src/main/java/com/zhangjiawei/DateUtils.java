@@ -1,131 +1,168 @@
 package com.zhangjiawei;
 
+import java.io.FileInputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
+/**
+ * 关于日期的工具类
+ * @author zhangjiawei
+ *
+ */
 public class DateUtils {
 	
-	public static void main(String[] args) {
-		
-		Date birth = new Date(100, 0, 6);
-		int age = calAge(birth);
-		System.out.println("age is " + age);
-		
-		System.out.println("今天的月初是 " + getMonthStart(new Date()));
-		
-		
-		System.out.println("今天的月末是 " + getMonthEnd(new Date(119, 1, 23)));
-		
-		
-	}
-	
-	
 	/**
-	 * 
-	 * @param birthday
-	 * @return
+	 * 一天有多少毫秒
 	 */
-	public static  int calAge(Date birthday) {
-		 
-		Calendar cal = Calendar.getInstance();  
-		cal.setTime(birthday);
-		//获取出生的年月日
-		int birthYear = cal.get(Calendar.YEAR);
-		int birthMonth = cal.get(Calendar.MONTH);
-		int birthDate = cal.get(Calendar.DAY_OF_MONTH);
+	static final int millSecondsPerDay =  1000*60*60*24; 
+	
+	/**
+	 * 计算年龄
+	 * @param birthday  生日
+	 * @return  返回年龄
+	 */
+	public static int getAge(Date birthday) {
+		//2018 12 4 // 5 // 6
+		Calendar calendar = Calendar.getInstance();
+		//计算出生的年、月、日
+		calendar.setTime(birthday);
+		int birthYear = calendar.get(Calendar.YEAR);
+		int birthMonth = calendar.get(Calendar.MONTH);
+		int birthDate = calendar.get(Calendar.DATE);
 		
-		// 获取今天的年月日
-		cal.setTime(new Date());
-		int currentYear = cal.get(Calendar.YEAR);
-		int currentMonth = cal.get(Calendar.MONTH);
-		int currentDate = cal.get(Calendar.DAY_OF_MONTH);
 		
-		int age = currentYear-birthYear;
-		if(currentMonth<birthMonth)
+		//计算当前的年、月、日
+		calendar.setTime(new Date());
+		int currentYear = calendar.get(Calendar.YEAR);
+		int currentMonth = calendar.get(Calendar.MONTH);
+		int currentDate = calendar.get(Calendar.DATE);
+		
+		int age = currentYear - birthYear;
+		// 如果当前的月份小 则年龄减去1
+		if(currentMonth<birthMonth) {
 			age--;
-		else if (currentMonth==birthMonth){
-			if(currentDate<birthDate)
-				age--;
+		}else if(currentMonth==birthMonth && currentDate<birthDate) {
+			// 如果月份相同 当前的日期小 则年龄减去1
+			age--;
 		}
-		return age;
+		return age;	
 	}
 	
 	/**
-	 * 判断是否为当天
+	 * 计算还剩余多少天
+	 * @param future
+	 */
+	public static int getRemainDays(Date future) {
+		
+		return (int )((future.getTime()- new Date().getTime())/millSecondsPerDay);
+		
+	}
+	
+	/**
+	 *  判断是否为当天
 	 * @param date
 	 * @return
 	 */
 	public static boolean isToday(Date date) {
-		SimpleDateFormat smt = new SimpleDateFormat("yyyyMMdd");
 		
-		String dateStr = smt.format(date);
-		String todayStr = smt.format(new Date());
-		return dateStr.equals(todayStr);
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
 		
-	}
-	
-	
-	/**
-	 * 判断是否为今年
-	 * @param date
-	 * @return
-	 */
-	public static boolean isThisYear(Date date) {
-		SimpleDateFormat smt = new SimpleDateFormat("yyyy");
+		String formatSrc = dateFormat.format(date);// 参数格式化成一个字符串
 		
-		String dateStr = smt.format(date);
-		String todayStr = smt.format(new Date());
-		return dateStr.equals(todayStr);
-	}
-	
-	
-	/** 
-	 *  
-	 * 给定时间对象，初始化到该月初的1日0时0分0秒0毫秒
-	 * 例如  给定 2017-08-23 13:24:16  返回 2017-08-01 00:00:00 
-	 * @return
-	 */
-	public static Date getMonthStart(Date date) {
+		String formatToday = dateFormat.format(new Date());// 把当前日期格式化成字符串
 		
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(date);
-		//设置0秒
-		cal.set(Calendar.SECOND, 0);
-		cal.set(Calendar.MINUTE, 0);
-		cal.set(Calendar.HOUR, 0);
-		cal.set(Calendar.AM_PM,Calendar.AM);
-		cal.set(Calendar.DAY_OF_MONTH,1);
-		return cal.getTime();
+		return formatSrc.equals(formatToday);
+		
 	}
 	
 	/**
-	 * 求月�?
+	 * 获取当月的月初
+	 */
+	public static Date getBeginOfMonth() {
+		
+		// 获取日历的实例
+		Calendar instance = Calendar.getInstance();
+		// 设置成当前的时间
+		instance.setTime(new Date());
+		instance.set(Calendar.SECOND, 0);// 设置0秒
+		instance.set(Calendar.MINUTE, 0);// 设置0分
+		instance.set(Calendar.HOUR, 0);// 设置0小时
+		instance.set(Calendar.AM_PM, Calendar.AM);// 设置上午
+		instance.set(Calendar.DATE, 1);// 设置1日
+		
+		return instance.getTime();
+	}
+	
+	/**
+	 * 获取当前月的月末
+	 * @return
+	 */
+	public static Date getEndOfMonth() {
+		// 获取日历的实例
+		Calendar instance = Calendar.getInstance();
+		// 设置成当前的时间
+		instance.setTime(new Date());
+		instance.add(Calendar.MONTH, 1);// 月份加1
+		
+		// 下列代码设置成月初
+		instance.set(Calendar.SECOND, 0);// 设置0秒
+		instance.set(Calendar.MINUTE, 0);// 设置0分
+		instance.set(Calendar.HOUR, 0);// 设置0小时
+		instance.set(Calendar.AM_PM, Calendar.AM);// 设置上午
+		instance.set(Calendar.DATE, 1);// 设置1日
+		
+		// 减去一秒 变成当月的月末
+		instance.add(Calendar.SECOND, -1);// 秒减去1
+		return instance.getTime();
+		
+	}
+	
+	/**
+	 * 
 	 * @param date
 	 * @return
 	 */
-	public static Date getMonthEnd(Date date) {
+	public static boolean  isThisWeek(Date date) {
+
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+
+		Calendar firstDayOfWeek = Calendar.getInstance(Locale.getDefault());
+
+		firstDayOfWeek.setFirstDayOfWeek(Calendar.MONDAY);
+
+		int day = firstDayOfWeek.get(Calendar.DAY_OF_WEEK);
+
+		firstDayOfWeek.add(Calendar.DATE, -day+1+1);// 后面的+1是因为从周日开始
+
+		// 本周一的日期
+
+		System.out.println(format.format(firstDayOfWeek.getTime()));
+
+		Calendar lastDayOfWeek = Calendar.getInstance(Locale.getDefault());
+
+		lastDayOfWeek.setFirstDayOfWeek(Calendar.MONDAY);
+
+		day = lastDayOfWeek.get(Calendar.DAY_OF_WEEK);
+
+		lastDayOfWeek.add(Calendar.DATE, 7-day+1);
+
+		// 本周星期天的日期
+
+		System.out.println(format.format(lastDayOfWeek.getTime()));
 		
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(date);
-		//设置0秒
-		cal.set(Calendar.SECOND, 0);
-		cal.set(Calendar.MINUTE, 0);
-		cal.set(Calendar.HOUR, 0);
-		cal.set(Calendar.AM_PM,Calendar.AM);
-		cal.set(Calendar.DAY_OF_MONTH,1);
-		cal.add(Calendar.MONTH, 1);
-		cal.add(Calendar.SECOND, -1);
-		return cal.getTime();
+		return (date.getTime()<lastDayOfWeek.getTime().getTime() &&
+				date.getTime()>firstDayOfWeek.getTime().getTime() );
+
 	}
 
-	public static Date getCreated() {
-		Date created = new Date();
-		return created;
+	public static byte[] md5(FileInputStream fileInputStream) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
-	public static Date getPeriod() {
-		Date created = getCreated();
-		return created;
-	}
+	
+	
+	
 }
